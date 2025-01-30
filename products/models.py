@@ -30,4 +30,19 @@ class Review(TimeStampdModel):
 
     def __str__(self):
         return f'user name {self.user}'
+    
+
+class Cart(TimeStampdModel):
+    products = models.ManyToManyField('products.Product', related_name='carts')
+    user = models.OneToOneField('users.User', related_name='cart', on_delete=models.CASCADE)
+
+
+class FavoriteProduct(TimeStampdModel):
+    product = models.ForeignKey('products.Product', related_name='favorite_products', on_delete=models.CASCADE)
+    user = models.ForeignKey('users.User', related_name='favorite_products', on_delete=models.SET_NULL, null=True, blank=True)
+
+
+class ProductImage(TimeStampdModel):
+    product = models.ForeignKey('products.Product', related_name='images', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='products/')
 
