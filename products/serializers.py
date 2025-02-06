@@ -4,7 +4,7 @@ from users.models import User
 
 
 class ProductSerializer(serializers.ModelSerializer):
-
+    
     class Meta:
         model = Product
         fields = ['name', 'description', 'quantity', 'price', 'currency']

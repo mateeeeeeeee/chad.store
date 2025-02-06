@@ -1,45 +1,51 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Product, Cart, ProductTag, FavoriteProduct, Review
 from rest_framework import status
+from rest_framework.views import status, APIView
 from products.serializers import ProductSerializer, CartSerializer, ProductTagSerializer, FavoriteProductSerializer, ReviewSerializer
 
 
-@api_view(['GET','POST'])
-def products_view(request):
-    if request.method == "GET":
+class ProductListCreateView(APIView):
+    def get(self, request):
         products = Product.objects.all()
-        products_list = []
-
-        for product in products:
-            products_list.append({
-                'id': product.id,
-                'name': product.name,
-                'description': product.description,
-                'price': product.price,
-                'currency': product.currency,
-                'quantity': product.quantity,
-            })
-        return Response({'products': products_list})
-
-    elif request.method == "POST":
-        data = request.data
-
-        data = request.data
-        serializer = ProductSerializer(data=data)
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request):
+        serializer = ProductSerializer(data=request.data)
         if serializer.is_valid():
-            created_product = Product.objects.create(
-                name=data.get('name'),
-                description=data.get('description'),
-                price=data.get('price'),
-                quantity=data.get('quantity'),
-                currency=data.get('currency'),
-            )
-            return Response({'id':created_product.id}, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
+            product = serializer.save()
+            return Response({'id': product.id}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class ProductDetailUpdateDeleteView(APIView):
+    def get(self, request, pk):
+        obj = get_object_or_404(Product, pk=pk)
+        serializer = ProductSerializer(obj)
+        return Response(serializer.data)
+    
+    def put(self,request, pk):
+        obj = get_object_or_404(Product, pk=pk)
+        serializer = ProductSerializer(obj, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def patch(self,request,pk):
+        obj = get_object_or_404(Product, pk=pk)
+        serializer = ProductSerializer(obj, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self,request,pk):
+        obj = get_object_or_404(Product, pk=pk)
+        obj.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET', 'POST'])
 def cart_view(request):

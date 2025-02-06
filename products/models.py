@@ -27,7 +27,8 @@ class Review(TimeStampdModel):
     user = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='reviews')
     product = models.ForeignKey('products.Product', on_delete=models.CASCADE, related_name='reviews')
     rating = models.PositiveIntegerField(validators=[MaxValueValidator(5)])
-
+    content = models.TextField()
+    
     def __str__(self):
         return f'user name {self.user}'
     
