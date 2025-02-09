@@ -7,7 +7,7 @@ class ProductSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Product
-        fields = ['name', 'description', 'quantity', 'price', 'currency']
+        fields = ["id",'name', 'description', 'quantity', 'price', 'currency',"reviews"]
 
 class CartSerializer(serializers.ModelSerializer):
 
@@ -61,10 +61,10 @@ class FavoriteProductSerializer(serializers.ModelSerializer):
 
     
 class ReviewSerializer(serializers.ModelSerializer):
-
+    product_id = serializers.IntegerField(write_only=True) 
     class Meta:
         model = Review
-        fields = ['user', 'product', 'rating']
+        fields = '__all__'
 
     def validate_product_id(self, value):# ვნახულობთ თუ ეს პროდუქტი არსებობს
         try:

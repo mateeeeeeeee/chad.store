@@ -3,49 +3,33 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Product, Cart, ProductTag, FavoriteProduct, Review
 from rest_framework import status
+from rest_framework.generics import GenericAPIView
 from rest_framework.views import status, APIView
+from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 from products.serializers import ProductSerializer, CartSerializer, ProductTagSerializer, FavoriteProductSerializer, ReviewSerializer
 
 
-class ProductListCreateView(APIView):
-    def get(self, request):
-        products = Product.objects.all()
-        serializer = ProductSerializer(products, many=True)
-        return Response(serializer.data)
-    
-    def post(self, request):
-        serializer = ProductSerializer(data=request.data)
-        if serializer.is_valid():
-            product = serializer.save()
-            return Response({'id': product.id}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class ProductViewSet(ListModelMixin, GenericAPIView, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
 
-class ProductDetailUpdateDeleteView(APIView):
-    def get(self, request, pk):
-        obj = get_object_or_404(Product, pk=pk)
-        serializer = ProductSerializer(obj)
-        return Response(serializer.data)
+    def get(self, request, *args, **kwargs):
+        pk = kwargs.get("pk")
+        if pk:
+            return self.retrieve(request, *args, **kwargs)
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
     
-    def put(self,request, pk):
-        obj = get_object_or_404(Product, pk=pk)
-        serializer = ProductSerializer(obj, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def put(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
     
-    def patch(self,request,pk):
-        obj = get_object_or_404(Product, pk=pk)
-        serializer = ProductSerializer(obj, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
     
-    def delete(self,request,pk):
-        obj = get_object_or_404(Product, pk=pk)
-        obj.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
 
 @api_view(['GET', 'POST'])
 def cart_view(request):
@@ -128,30 +112,12 @@ def favorite_product_view(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
-@api_view(['GET', 'POST'])
-def review_view(request):
-    if request.method == 'GET':
-        reviews = Review.objects.all()
-        review_list = []
-        
-        for review in reviews:
-            review_data = {
-                'id': review.id,
-                'product_id': review.product.id,
-                'content': review.content,
-                'rating': review.rating
-            }
-            review_list.append(review_data)
-        
-        return Response({'reviews': review_list})
+class ReviewViewSet(ListModelMixin, CreateModelMixin, GenericAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
 
-    elif request.method == 'POST':
-        serializer = ReviewSerializer(data=request.data, context={"request":request})
-        if serializer.is_valid():
-            review = serializer.save()
-            return Response(
-                {'id': review.id, 'message': 'Review created successfully!'},
-                status=status.HTTP_201_CREATED
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
     
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
