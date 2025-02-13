@@ -5,6 +5,7 @@ from .models import Product, Cart, ProductTag, FavoriteProduct, Review
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import status, APIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 from products.serializers import ProductSerializer, CartSerializer, ProductTagSerializer, FavoriteProductSerializer, ReviewSerializer
 
@@ -31,32 +32,20 @@ class ProductViewSet(ListModelMixin, GenericAPIView, CreateModelMixin, RetrieveM
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
 
-@api_view(['GET', 'POST'])
-def cart_view(request):
-    if request.method == "GET":
-        cart = Cart.objects.filter(user=request.user).first()
-        cart_list = []
+class CartViewSet(ListModelMixin, CreateModelMixin, GenericAPIView):
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+    permission_classes = [IsAuthenticated]
 
-        if cart:
-            for i in cart.products.all():
-                cart_list.append({
-                    'id': i.id,
-                    'product': i.name
-                })
-        return Response({'cart': cart_list})
-
-    elif request.method == "POST":
-        data = request.data
-
-        serializer = CartSerializer(data=data)
-        if serializer.is_valid():
-            product = Product.objects.get(id=data.get('product'))
-            cart, created = Cart.objects.get_or_create(user=request.user)
-            cart.products.add(product)
-
-            return Response({'message': 'Product added to cart'}, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get_queryset(self):
+        queryset = self.queryset.filter(user=self.request.user)
+        return queryset
+    
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+    
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
         
 
 @api_view(["GET", "POST"])
@@ -87,29 +76,26 @@ def product_tag_view(request, pk):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET', 'POST'])
-def favorite_product_view(request):
-    if request.method == "GET":
-        user = request.user
-        favorite_products = FavoriteProduct.objects.filter(user=user)
-        favorite_products_list = []
+class FavoriteProductViewSet(GenericAPIView,ListModelMixin,RetrieveModelMixin, DestroyModelMixin, CreateModelMixin):
+    queryset = FavoriteProduct.objects.all()
+    serializer_class = FavoriteProductSerializer
+    permission_classes = [IsAuthenticated]
 
-        for fp in favorite_products:
-            favorite_products_list.append({
-                "id": fp.product.id,
-                "name": fp.product.name
-            })
-        return Response({"favorite_products": favorite_products_list})
+    def get_queryset(self):
+        queryset = self.queryset.filter(user=self.request.user)
+        return queryset
 
-    elif request.method == "POST":
-        serializer = FavoriteProductSerializer(data=request.data)
-        if serializer.is_valid():
-            product_id = serializer.validated_data['product_id']
-            user_id = serializer.validated_data['user_id']
-            favorite_product, created = FavoriteProduct.objects.get_or_create(user_id=user_id, product_id=product_id)
+    def get(self, request, pk=None, *args, **kwargs):
+        if pk:
+            return self.retrieve(request, *args, **kwargs)
+        return self.list(request, *args,**kwargs)
+    
+    def post(self,requst, *args, **kwargs):
+        return self.create(requst, *args, **kwargs)
+    
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
 
-            return Response({"message": "Product added to favorites"}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
 class ReviewViewSet(ListModelMixin, CreateModelMixin, GenericAPIView):
