@@ -48,13 +48,16 @@ class CartViewSet(ListModelMixin, CreateModelMixin, GenericAPIView):
         return self.create(request, *args, **kwargs)
         
 
-class ProductTagListView(ListModelMixin,GenericAPIView):
+class ProductTagListView(ListModelMixin,CreateModelMixin,GenericAPIView):
     queryset = ProductTag.objects.all()
     serializer_class = ProductTagSerializer
     permission_classes = [IsAuthenticated]
 
     def get(self, request,*args, **kwargs):
         return self.list(request, *args, **kwargs)
+    
+    def post(self,request,*args,**kwargs):
+        return self.create(request,*args,**kwargs)
 
 
 class FavoriteProductViewSet(GenericAPIView,ListModelMixin,RetrieveModelMixin, DestroyModelMixin, CreateModelMixin):

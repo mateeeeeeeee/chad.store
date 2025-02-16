@@ -13,6 +13,7 @@ class CategoryImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = CategoryImage
         fields = ['id','image','category','is_active']
+        
 class CategoryDetailSerializers(serializers.ModelSerializer):
     products = ProductSerializer(many=True, read_only=True)
     images = CategoryImageSerializer(many=True, read_only=True)
