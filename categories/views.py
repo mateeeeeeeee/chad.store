@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Category
+from .models import Category, CategoryImage
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
@@ -24,12 +24,12 @@ class CategoryDetailListView(ListModelMixin,RetrieveModelMixin, GenericAPIView):
         return self.retrieve(request,*args,**kwargs)
     
 class CategoryImageListView(ListModelMixin, GenericAPIView):
-    queryset = Category.objects.all()
+    queryset = CategoryImage.objects.all()
     serializer_class = CategoryImageSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return self.queryset.filter(category=self.kwargs['category_id'])
+        return self.queryset.filter(category_id=self.kwargs['category_id'])
 
     def get(self,request,*args,**kwargs):
         return self.list(request,*args,**kwargs)

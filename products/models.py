@@ -17,7 +17,7 @@ class Product(TimeStampdModel):
 
 class ProductTag(TimeStampdModel):
     name = models.CharField(max_length=255)
-    products = models.ManyToManyField('products.Product', related_name='product_tags')
+    products = models.ManyToManyField('products.Product', related_name='tags')
         
     def __str__(self):
         return f'tag name {self.name}'
