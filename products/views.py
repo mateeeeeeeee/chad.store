@@ -10,13 +10,14 @@ from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveMode
 from products.serializers import ProductSerializer, CartSerializer, ProductTagSerializer, FavoriteProductSerializer, ReviewSerializer, ProductImageSerializer
 from rest_framework.generics import ListAPIView, ListCreateAPIView
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import GenericViewSet
 
-class ProductViewSet(ModelViewSet):
+class ProductViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [IsAuthenticated]
 
-class CartViewSet(ListCreateAPIView):
+class CartViewSet(ListModelMixin,GenericViewSet):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
     permission_classes = [IsAuthenticated]
@@ -26,13 +27,13 @@ class CartViewSet(ListCreateAPIView):
         return queryset
         
 
-class ProductTagListView(ListAPIView):
+class ProductTagListView(ListModelMixin,GenericViewSet):
     queryset = ProductTag.objects.all()
     serializer_class = ProductTagSerializer
     permission_classes = [IsAuthenticated]
 
 
-class FavoriteProductViewSet(ModelViewSet):
+class FavoriteProductViewSet(ListModelMixin,CreateModelMixin,DestroyModelMixin,GenericViewSet):
     queryset = FavoriteProduct.objects.all()
     serializer_class = FavoriteProductSerializer
     permission_classes = [IsAuthenticated]
@@ -44,21 +45,22 @@ class FavoriteProductViewSet(ModelViewSet):
 
     
 
-class ReviewViewSet(ListCreateAPIView):
+class ReviewViewSet(ListModelMixin, CreateModelMixin, GenericViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self, *args,**kwargs):
-        queryset = self.queryset.filter(product_id=self.kwargs['product_id'])
+        queryset = self.queryset.filter(product_id=self.kwargs['product_pk'])
         return queryset
 
-class ProductImageViewSet(ModelViewSet):
+
+class ProductImageViewSet(ListModelMixin,CreateModelMixin,RetrieveModelMixin,DestroyModelMixin,GenericViewSet):
     queryset = ProductImage.objects.all()
     serializer_class = ProductImageSerializer
     permission_classes = [IsAuthenticated]
     http_method_names = ['get','post','delete']
 
     def get_queryset(self):
-        return self.queryset.filter(product__id=self.kwargs['product_id'])
+        return self.queryset.filter(product__id=self.kwargs['product_pk'])
     
