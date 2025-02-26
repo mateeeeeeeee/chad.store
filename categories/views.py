@@ -10,18 +10,18 @@ from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveMode
 from rest_framework.viewsets import GenericViewSet
 
 
-class CategoryListView(ListModelMixin, GenericViewSet):
+class CategoryViewSet(ListModelMixin, GenericViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAuthenticated]
 
 
-class CategoryDetailListView(RetrieveModelMixin, GenericViewSet):
+class CategoryDetailViewSet(RetrieveModelMixin, GenericViewSet):
     queryset = Category.objects.all()
     serializer_class = CategoryDetailSerializers
     permission_classes = [IsAuthenticated]
     
-class CategoryImageListView(ListModelMixin,CreateModelMixin,GenericViewSet):
+class CategoryImageViewSet(ListModelMixin,CreateModelMixin,GenericViewSet):
     queryset = CategoryImage.objects.all()
     serializer_class = CategoryImageSerializer
     permission_classes = [IsAuthenticated]
