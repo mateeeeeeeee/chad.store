@@ -19,9 +19,6 @@ products_router.register('reviews',ReviewViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('', include(products_router.urls)),
-    # path('cart/', CartViewSet.as_view(), name='carts'),
-    # path('tags/', ProductTagListView.as_view(), name='product_tag_view'),
-    # path('products/<int:product_id>/reviews/', ReviewViewSet.as_view(), name="reviews"),
 ]
 
 
