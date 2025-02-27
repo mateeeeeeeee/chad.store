@@ -11,11 +11,23 @@ from products.serializers import ProductSerializer, CartSerializer, ProductTagSe
 from rest_framework.generics import ListAPIView, ListCreateAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.viewsets import GenericViewSet
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
+from .pagination import ProductPagination
+
+
+
+
+
 
 class ProductViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_fields = ['price','categories']
+    search_fields = ['name','description']
+    pagination_class = ProductPagination
 
 class CartViewSet(ListModelMixin,GenericViewSet):
     queryset = Cart.objects.all()
@@ -49,6 +61,8 @@ class ReviewViewSet(ListModelMixin, CreateModelMixin, GenericViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['rating']
 
     def get_queryset(self, *args,**kwargs):
         queryset = self.queryset.filter(product_id=self.kwargs['product_pk'])

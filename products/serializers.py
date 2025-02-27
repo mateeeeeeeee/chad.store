@@ -8,7 +8,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     product_id = serializers.IntegerField(write_only=True) 
     class Meta:
         model = Review
-        exclude = ['updated_at', 'created_at']
+        exclude = ['updated_at', 'created_at',"product"]
 
     def validate_product_id(self, value):# ვნახულობთ თუ ეს პროდუქტი არსებობს
         try:
