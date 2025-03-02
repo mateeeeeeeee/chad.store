@@ -8,7 +8,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     product_id = serializers.IntegerField(write_only=True) 
     class Meta:
         model = Review
-        exclude = ['updated_at', 'created_at',"product"]
+        exclude = ['updated_at',"product"]
 
     def validate_product_id(self, value):# ვნახულობთ თუ ეს პროდუქტი არსებობს
         try:
@@ -20,11 +20,16 @@ class ReviewSerializer(serializers.ModelSerializer):
     def validate_rating(self, value):# რეიტინგი უნდა იყოს 1 ზე მეტი ან 5 ზე ნაკლები, რადგან სხვა რიცხვი არ შეესაბამება რეალურ მაჩვენებს :)
         if value < 1 or value > 5:
             raise serializers.ValidationError("Rating must be between 1 and 5.")
-        return value
+        return value        
 
     def create(self, validated_data):# ვქმნით review-ს
         product = Product.objects.get(id=validated_data['product_id'])
         user = self.context['request'].user
+
+        existing_reviews = Review.objects.filter(user=user, product=product)
+        if existing_reviews.exists():
+            raise serializers.ValidationError("You already reviewed this product")
+        
 
         review = Review.objects.create(
             product=product,

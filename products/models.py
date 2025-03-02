@@ -29,6 +29,8 @@ class Review(TimeStampdModel):
     rating = models.PositiveIntegerField(validators=[MaxValueValidator(5)])
     content = models.TextField()
     
+    class Meta:
+        unique_together = ['product','user']
     def __str__(self):
         return f'user name {self.user}'
     
