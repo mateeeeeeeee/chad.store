@@ -1,13 +1,13 @@
 from django.shortcuts import render, get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Product, Cart, ProductTag, FavoriteProduct, Review, ProductImage
+from .models import Product, Cart, ProductTag, FavoriteProduct, Review, ProductImage, CartItem
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import status, APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
-from products.serializers import ProductSerializer, CartSerializer, ProductTagSerializer, FavoriteProductSerializer, ReviewSerializer, ProductImageSerializer
+from products.serializers import ProductSerializer, CartSerializer, ProductTagSerializer, FavoriteProductSerializer, ReviewSerializer, ProductImageSerializer, CartItemSerializer
 from rest_framework.generics import ListAPIView, ListCreateAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.viewsets import GenericViewSet
@@ -89,3 +89,21 @@ class ProductImageViewSet(ListModelMixin,CreateModelMixin,RetrieveModelMixin,Des
     def get_queryset(self):
         return self.queryset.filter(product__id=self.kwargs['product_pk'])
     
+class CartItemViewSet(ModelViewSet):
+    queryset = CartItem.objects.all()
+    serializer_class = CartItemSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return self.queryset.filter(cart__user=self.request.user)
+    
+    def perform_destroy(self, instance):
+        if instance.cart.user != self.request.user:
+            raise PermissionDenied('You do not have permission to delete this review')
+        instance.delete()
+
+    def perform_update(self, serializer):
+        instance = self.get_object()
+        if instance.cart.user != self.request.user:
+            raise PermissionDenied('You do not have permission to update this item')
+        serializer.save()
