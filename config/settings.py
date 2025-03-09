@@ -144,3 +144,7 @@ REST_FRAMEWORK = {
         'tag': '5/minute'
     }
 }
+
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher'
+]
