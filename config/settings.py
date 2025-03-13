@@ -19,8 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-vfwmjtg8(c+)e9te1pw=(et!gj2u)_x7ggpu(xwf+2d)e86x0g'
+SECRET_KEY = '_vau_es_ra_aris_'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -43,8 +42,8 @@ INSTALLED_APPS = [
     'categories',
 
     'rest_framework',
-
     'django_filters',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -148,3 +147,15 @@ REST_FRAMEWORK = {
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.PBKDF2PasswordHasher'
 ]
+
+SWAGGER_SETTINGS = {
+    "USE_SESSION_AUTH": False,
+    "SECURITY_DEFINITIONS": {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "id": "header",
+            "description": "შეიყვანე JWT ტოკენი შემდეგი პრინციპით Bearer <Token>"
+        }
+    }
+}
