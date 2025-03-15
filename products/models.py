@@ -2,9 +2,11 @@ from django.db import models
 from config.util_models.models import TimeStampdModel
 from products.choices import Currency
 from django.core.validators import MaxValueValidator
+from users.models import User
 
 
 class Product(TimeStampdModel):
+    user = models.ForeignKey("users.User",null=True, on_delete=models.CASCADE, related_name='products')
     name = models.CharField(max_length=255)
     description = models.TextField()
     price = models.FloatField()

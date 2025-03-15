@@ -16,6 +16,7 @@ products_router = routers.NestedDefaultRouter(
 
 products_router.register('images',ProductImageViewSet)
 products_router.register('reviews',ReviewViewSet)
+products_router.register(r'my_products',ProductViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

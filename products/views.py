@@ -17,7 +17,7 @@ from .pagination import ProductPagination
 from .filters import ProductFilter, ReviewFilter
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle, ScopedRateThrottle
-
+from rest_framework.decorators import action
 
 
 
@@ -30,6 +30,12 @@ class ProductViewSet(ModelViewSet):
     filterset_class = ProductFilter
     search_fields = ['name','description']
     pagination_class = ProductPagination
+
+    @action(detail=True, methods=['GET'])
+    def get_my_products(self, request, pk=None):
+        queryset = self.queryset.filter(user=self.request.user)
+        serrializer = self.get_serializer(queryset,many=True)
+        return Response(serrializer.data)
 
 class CartViewSet(ListModelMixin,GenericViewSet):
     queryset = Cart.objects.all()

@@ -65,11 +65,17 @@ class ProductSerializer(serializers.ModelSerializer):
         product.tags.set(tags)
         return product
     
-    def update(self, instance, validate_data):
-        tags = validate_data.pop('tags', None)
+    def update(self, instance, validated_data):
+        tags = validated_data.pop('tags', None)
         if tags is not None:
             instance.tags.set(tags)
-        return super().update(instance, validate_data)
+        return super().update(instance, validated_data)
+    
+    def validate(self, data):
+        request = self.context["request"]
+        if self.instance and self.instance.user != request.user:
+            raise serializers.ValidationError("You can only edit your own products.")
+        return data
 
 
 
