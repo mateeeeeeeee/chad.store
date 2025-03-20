@@ -136,6 +136,9 @@ MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
     'DEFAULT_THROTTLE_RATES': {
         'anon': '10/minute',
         'user': '10/minute',
@@ -149,7 +152,7 @@ PASSWORD_HASHERS = [
 ]
 
 SWAGGER_SETTINGS = {
-    "USE_SESSION_AUTH": False,
+    'USE_SESSION_AUTH': False,
     "SECURITY_DEFINITIONS": {
         "Bearer": {
             "type": "apiKey",
@@ -158,4 +161,12 @@ SWAGGER_SETTINGS = {
             "description": "შეიყვანე JWT ტოკენი შემდეგი პრინციპით Bearer <Token>"
         }
     }
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+
 }
