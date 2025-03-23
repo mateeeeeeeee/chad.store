@@ -3,7 +3,7 @@ from config.util_models.models import TimeStampdModel
 from products.choices import Currency
 from django.core.validators import MaxValueValidator
 from users.models import User
-
+from config.utils.image_validators import validate_image_resolution, validate_image_size, validate_image_count
 
 class Product(TimeStampdModel):
     user = models.ForeignKey("users.User",null=True, on_delete=models.CASCADE, related_name='products')
@@ -60,7 +60,16 @@ class FavoriteProduct(TimeStampdModel):
     user = models.ForeignKey('users.User', related_name='favorite_products', on_delete=models.SET_NULL, null=True, blank=True)
 
 
-class ProductImage(TimeStampdModel):
+class ProductImage(TimeStampdModel, models.Model):
     product = models.ForeignKey('products.Product', related_name='images', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='products/')
+    image = models.ImageField(upload_to='products/',validators=[validate_image_resolution, validate_image_size])
+
+    def clean(self):
+        if self.product_id:
+            validate_image_count(self.product_id)
+        super().clean()
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 

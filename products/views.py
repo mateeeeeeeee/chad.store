@@ -19,6 +19,10 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle, ScopedRateThrottle
 from rest_framework.decorators import action
 from .permissions import IsObjectOwnerOrReadOnly
+from rest_framework.parsers import MultiPartParser, FormParser
+from django.core.validators import ValidationError
+from rest_framework.response import Response
+from rest_framework import status
 
 
 class ProductViewSet(ModelViewSet):
@@ -86,10 +90,18 @@ class ProductImageViewSet(ListModelMixin,CreateModelMixin,RetrieveModelMixin,Des
     queryset = ProductImage.objects.all()
     serializer_class = ProductImageSerializer
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
     http_method_names = ['get','post','delete']
+
 
     def get_queryset(self):
         return self.queryset.filter(product__id=self.kwargs['product_pk'])
+    
+    def create(self,requset, *args, **kwargs):
+        try:
+            super().create(requset, *args, **kwargs)
+        except ValidationError as e:
+            return Response ({"error":f"{e}"}, status=status.HTTP_400_BAD_REQUEST)
     
 class CartItemViewSet(ModelViewSet):
     queryset = CartItem.objects.all()
