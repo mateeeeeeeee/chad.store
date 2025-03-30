@@ -5,6 +5,10 @@ from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from .models import User
 
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
+
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
@@ -41,5 +45,11 @@ class ProfileSerializer(serializers.ModelSerializer):
             validated_data['password'] = make_password(validated_data['password'])
         return super().update(instance, validated_data)
 
-
-
+class PasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    def validate_email(self, value):
+        try:
+            user = User.objects.get(email=value)
+        except:
+            raise serializers.ValidationError("მომხმარებელი მსგავსი email-ით ვერ მოიძებნა")
+        return value
