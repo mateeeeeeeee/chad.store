@@ -53,3 +53,32 @@ class PasswordResetSerializer(serializers.Serializer):
         except:
             raise serializers.ValidationError("მომხმარებელი მსგავსი email-ით ვერ მოიძებნა")
         return value
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    uidb64 = serializers.CharField()
+    token = serializers.CharField()
+    password = serializers.CharField(write_only = True, required = True, validators = [validate_password])
+    password2 = serializers.CharField(write_only = True, required = True)
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "პაროლები არ ემთხვევა"})
+        
+        try:
+            uid = force_str(urlsafe_base64_decode(attrs['uidb64']))
+            user = User.objects.get(pk=uid)
+        except (User.DoesNotExist, ValueError, TypeError, KeyError):
+            raise serializers.ValidationError({"message": "რაღაცა არასწორია"})
+        
+        token = attrs['token']
+        if not default_token_generator.check_token(user, token):
+            raise serializers.ValidationError({'message': 'არასწორია ან ვადაგასული ტოკეინია'})
+        
+        attrs['user'] = user
+        return attrs
+    
+    def save(self):
+        user = self.validated_data['user']
+        user.set_password(self.validated_data['password'])
+        user.save()
