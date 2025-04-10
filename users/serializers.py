@@ -32,6 +32,8 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('password2')
         user = User.objects.create_user(**validated_data)
+        user.is_active = False
+        user.save()
         return user
     
 class ProfileSerializer(serializers.ModelSerializer):
@@ -82,3 +84,8 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         user = self.validated_data['user']
         user.set_password(self.validated_data['password'])
         user.save()
+
+
+
+
+

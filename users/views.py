@@ -16,8 +16,9 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-
-
+import random
+from users.models import EmailVerificationCode
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -30,6 +31,32 @@ class UserViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Gen
 class RegisterViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
+
+    
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                self.send_verification_code(user)
+                user = serializer.save()
+            except Exception:
+                return response.Response({"Detail": "something unexpected happened try again later"})
+            return Response(
+                {"detail": "user registered succesfully. verification code sent to email"},
+                status=status.HTTP_201_CREATED)
+                                                
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def send_verification_code(self, user):
+        code = str(random.randint(100000, 999999))
+
+        EmailVerificationCode.objects.update_or_create(
+            user=user,
+            defaults={"code":code, "created_at": timezone.now()}
+        )
+        subject = "your verification"
+        message = f"Hello {user.username}, your verification code is {code}"
+        send_mail(subject, message, 'no-reply@example.com', [user.email])
 
 
 class ProfileViewSet(mixins.RetrieveModelMixin,
