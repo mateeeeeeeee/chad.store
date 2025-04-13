@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
-from .models import User
+from .models import User, EmailVerificationCode
 
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode
@@ -86,6 +86,42 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         user.save()
 
 
+class EmailCodeResendserializer(serializers.Serializer):
+    email = serializers.EmailField()
 
+    def validate(self, attrs):
+        email = attrs['email']
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise serializers.ValidationError({'message': 'მომხმარებელი მსგავსი email ით ვერ მოიძებნა'})
+        
+        if user.is_active:
+            raise serializers.ValidationError({"message": "მომხმარებელი უკვე აქტიურია"})
+        
+        attrs['user'] = user
+        return attrs
+    
 
+class EmailcoedConfirmSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    code = serializers.CharField()
 
+    def validate(self, attrs):
+        email = attrs['email']
+        code = attrs['code']
+
+        try:
+            user = User.objects.get(email=email)
+            verification_code = EmailVerificationCode.objects.get(user=user)
+
+            if verification_code.code != code:
+                raise serializers.ValidationError({"message": "კოდი არასწორია"})
+            
+            if verification_code.is_expired():
+                raise serializers.ValidationError({"message": "კოდი ვადაგასულია"})
+        except (User.DoesNotExist, EmailVerificationCode.DoesNotExist):
+            raise serializers.ValidationError({"message": "ვერ მოიძებნა მომხმარებელი ან მასთან დაკავშირებული კოდი"})
+        
+        attrs['user'] = user
+        return attrs
