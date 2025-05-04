@@ -26,20 +26,42 @@ from rest_framework import status
 
 
 class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.all().prefetch_related('reviews', 'tags')
     serializer_class = ProductSerializer
     permission_classes = [IsAuthenticated]
     throttle_classes = [UserRateThrottle]
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = ProductFilter
     search_fields = ['name','description']
-    pagination_class = ProductPagination
+    # pagination_class = ProductPagination
 
     @action(detail=False, methods=['GET'], url_path="my_products")
     def get_my_products(self, request, pk=None):
         queryset = self.queryset.filter(user=self.request.user)
         serrializer = self.get_serializer(queryset,many=True)
         return Response(serrializer.data)
+    
+    def get_serialized_data(self):
+        from django.core.cache import cache
+        cache_key = 'products_list'
+        cached_data = cache.get(cache_key)
+
+        if cached_data:
+            return cached_data
+        
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        cache.set('products_list', serializer.data, 60 * 10)
+        return serializer.data
+    
+    def list(self, request, *args, **kwargs):
+        import time
+        start = time.time()
+        data = self.get_serialized_data()
+        end = time.time()
+        print(end-start)
+        return Response(data)
+
     
 
 class CartViewSet(ListModelMixin,GenericViewSet):
