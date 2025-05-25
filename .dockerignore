@@ -1,89 +1,65 @@
-# Git
+# Ignore Docker management files from host
+.dockerignore
+docker-compose.yml
+Dockerfile
+
+# Version control
 .git
 .gitignore
 .gitattributes
 
+# Python cache
+__pycache__/
+*.py[cod]
 
-# CI
-.codeclimate.yml
-.travis.yml
-.taskcluster.yml
-
-# Docker
-docker-compose.yml
-Dockerfile
-.docker
-.dockerignore
-
-# Byte-compiled / optimized / DLL files
-**/__pycache__/
-**/*.py[cod]
-
-# C extensions
+# Bytecode/compiled files
 *.so
 
-# Distribution / packaging
-.Python
+# Environment files
+.env
+.env.*
+*.env
+*.secret
+
+# Django-specific
+db.sqlite3
+*.log
+media/
+static/
+staticfiles/
+
+# Virtual environments
 env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
+venv/
+.venv/
+.Python
+
+# Packaging
 *.egg-info/
-.installed.cfg
 *.egg
+dist/
+build/
+downloads/
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
+# Test/coverage tools
 .coverage
+.tox/
 .cache
 nosetests.xml
 coverage.xml
 
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-*.log
-
-# Sphinx documentation
+# Docs
 docs/_build/
 
-# PyBuilder
-target/
+# PyInstaller
+*.spec
+*.manifest
 
-# Virtual environment
-.env
-.venv/
-venv/
-
-# PyCharm
-.idea
-
-# Python mode for VIM
-.ropeproject
-**/.ropeproject
-
-# Vim swap files
-**/*.swp
-
-# VS Code
-.vscode/
+# Others
+pip-log.txt
+pip-delete-this-directory.txt

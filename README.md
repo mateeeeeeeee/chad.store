@@ -1,3 +1,0 @@
-# chad.store
-<!-- gamarjoba -->
-<!--baro-->
