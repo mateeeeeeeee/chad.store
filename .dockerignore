@@ -1,65 +1,15 @@
-# Ignore Docker management files from host
-.dockerignore
+db.sqlite3
+env
+.env
+.git 
+.gitignore
+__pycache__/
+*.pyc 
+*.pyo 
+.vscode/
+.idea/
+/media
+/static
 docker-compose.yml
 Dockerfile
-
-# Version control
-.git
-.gitignore
-.gitattributes
-
-# Python cache
-__pycache__/
-*.py[cod]
-
-# Bytecode/compiled files
-*.so
-
-# Environment files
-.env
-.env.*
-*.env
-*.secret
-
-# Django-specific
-db.sqlite3
-*.log
-media/
-static/
-staticfiles/
-
-# Virtual environments
-env/
-venv/
-.venv/
-.Python
-
-# Packaging
-*.egg-info/
-*.egg
-dist/
-build/
-downloads/
-
-# IDEs and editors
-.idea/
-.vscode/
-*.swp
-
-# Test/coverage tools
-.coverage
-.tox/
-.cache
-nosetests.xml
-coverage.xml
-
-# Docs
-docs/_build/
-
-# PyInstaller
-*.spec
-*.manifest
-
-# Others
-pip-log.txt
-pip-delete-this-directory.txt
+.dockerignore

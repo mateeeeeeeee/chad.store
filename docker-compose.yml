@@ -36,6 +36,21 @@ services:
       - "5432:5432"
     networks:
       - app_network
+  
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A config worker --loglevel=info
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./media:/app/media
+    networks:
+      - app_network
 
 networks:
   app_network:
@@ -45,4 +60,4 @@ volumes:
   redis_data:
   postgres_data:
 
-
+        
